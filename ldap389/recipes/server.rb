@@ -1,10 +1,8 @@
 require 'resolv'
-include_recipe "s3"
+include_recipe 's3'
 
 package '389-ds'
 
-# Source accepts the protocol s3:// with the host as the bucket
-# access_key_id and secret_access_key are just that
 s3_file "/etc/dirsrv_etc.tar.gz" do
   source "s3://opsworks-test01/dirsrv_etc.tar.gz"
   access_key_id #{node[:ldap389][:access_key_id]}

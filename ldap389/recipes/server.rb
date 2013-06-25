@@ -1,4 +1,5 @@
 require 'resolv'
+include_recipe "s3"
 
 package '389-ds'
 

@@ -54,7 +54,7 @@ service 'dirsrv' do
   action :stop
 end
 
-service 'dirsrv' do
-  action :start
-end
+# service 'dirsrv' do
+#  action :start
+# end
 

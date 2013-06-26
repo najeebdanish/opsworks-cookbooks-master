@@ -19,12 +19,7 @@ template '/root/.s3cfg' do
   mode 0600
 end
 
-execute 'install s3cmd rpm' do
-  cwd '/root/'
-  command "rpm -i s3cmd-1.0.0-4.1.x86_64.rpm"
-  action :run
-  only_if "rpm -qa|grep s3cmd"
-end
+package 's3cmd'
 
 script "Get all 389 files" do
   interpreter "bash"

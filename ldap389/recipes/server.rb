@@ -27,19 +27,19 @@ script "Get all 389 files" do
   cwd "/etc/"
   code <<-EOH
   s3cmd get s3://opsworks-test01/dirsrv_etc.tar.gz
-  tar -zxf dirsrv_etc.tar.gz
+#  tar -zxf dirsrv_etc.tar.gz
   cd /usr/lib64
   s3cmd get s3://opsworks-test01/dirsrv_usrlib64.tar.gz
-  tar -zxf dirsrv_usrlib64.tar.gz
+#  tar -zxf dirsrv_usrlib64.tar.gz
   cd /var/lib/dirsrv
   s3cmd get s3://opsworks-test01/slapd-dcaldap01b_varlibdirsrv.tar.gz
-  tar -zxf slapd-dcaldap01b_varlibdirsrv.tar.gz
+#  tar -zxf slapd-dcaldap01b_varlibdirsrv.tar.gz
   cd /var/lock/dirsrv
   s3cmd get s3://opsworks-test01/slapd-dcaldap01b_varlockdirsrv.tar.gz
-  tar -zxf slapd-dcaldap01b_varlockdirsrv.tar.gz
+#  tar -zxf slapd-dcaldap01b_varlockdirsrv.tar.gz
   cd /var/log/dirsrv
   s3cmd get s3://opsworks-test01/slapd-dcaldap01b_varlogdirsrv.tar.gz
-  tar -zxf slapd-dcaldap01b_varlogdirsrv.tar.gz
+#  tar -zxf slapd-dcaldap01b_varlogdirsrv.tar.gz
   EOH
 end
 

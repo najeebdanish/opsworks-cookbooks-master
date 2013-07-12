@@ -4,6 +4,10 @@ remote_file "/root/s3cmd-1.0.0-4.1.x86_64.rpm" do
   source "s3cmd-1.0.0-4.1.x86_64.rpm"
 end
 
+cookbook_file "/root/389InstallFile.inf" do
+  source "389InstallFile.inf"
+end
+
 execute 'install s3cmd rpm' do
   cwd '/root/'
   command "rpm -i s3cmd-1.0.0-4.1.x86_64.rpm"
@@ -40,6 +44,15 @@ script "Get all 389 files" do
   cd /var/log/dirsrv
   s3cmd get s3://opsworks-test01/slapd-dcaldap01b_varlogdirsrv.tar.gz
 #  tar -zxf slapd-dcaldap01b_varlogdirsrv.tar.gz
+  cd /root/
+  s3cmd get s3://opsworks-test01/dcaldap01.backup1.ldif
+  /usr/sbin/setup-ds-admin.pl -s -f 389InstallFile.inf
+  /etc/init.d/dirsrv stop
+  cd /etc/
+  rm -rf dirsrv
+  tar -zxf dirsrv_etc.tar.gz
+  /usr/lib64/dirsrv/slapd-dcaldap01b/ldif2db -i /root/dcaldap01.backup1.ldif -s "dc=evolv,dc=com"
+  sed -i "`grep -n -A 5 dna_init dse.ldif | grep nsslapd-pluginEnabled | awk -F"-" '{print $1}'`s/on/off/" /etc/dirsrv/slapd-dcaldap01b/dse.ldif
   EOH
 end
 
@@ -54,7 +67,7 @@ service 'dirsrv' do
   action :stop
 end
 
-# service 'dirsrv' do
-#  action :start
-# end
+service 'dirsrv' do
+  action :start
+end
 

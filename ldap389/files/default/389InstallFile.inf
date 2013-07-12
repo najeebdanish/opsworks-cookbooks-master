@@ -1,0 +1,22 @@
+[General]
+FullMachineName= ldapserver1
+SuiteSpotUserID= nobody
+SuiteSpotGroup= nobody
+AdminDomain= evolvsuite.local
+ConfigDirectoryAdminID= admin
+ConfigDirectoryAdminPwd= admin
+ConfigDirectoryLdapURL= ldap://ldapserver1-ext:389/o=NetscapeRoot
+
+[slapd]
+SlapdConfigForMC= Yes
+UseExistingMC= No
+ServerPort= 389
+ServerIdentifier= dcaldap01b
+Suffix= dc=evolvsuite,dc=com
+RootDN= cn=Directory Manager
+RootDNPwd= password123
+
+[admin]
+Port= 9830
+ServerAdminID= admin
+ServerAdminPwd= admin

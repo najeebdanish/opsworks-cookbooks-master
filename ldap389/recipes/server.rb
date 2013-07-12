@@ -51,8 +51,8 @@ script "Get all 389 files" do
   cd /etc/
   rm -rf dirsrv
   tar -zxf dirsrv_etc.tar.gz
+  sed -i "`grep -n -A 5 dna_init /etc/dirsrv/slapd-dcaldap01b/dse.ldif | grep nsslapd-pluginEnabled | awk -F"-" '{print $1}'`s/on/off/" /etc/dirsrv/slapd-dcaldap01b/dse.ldif
   /usr/lib64/dirsrv/slapd-dcaldap01b/ldif2db -i /root/dcaldap01.backup1.ldif -s "dc=evolv,dc=com"
-  sed -i "`grep -n -A 5 dna_init dse.ldif | grep nsslapd-pluginEnabled | awk -F"-" '{print $1}'`s/on/off/" /etc/dirsrv/slapd-dcaldap01b/dse.ldif
   EOH
 end
 

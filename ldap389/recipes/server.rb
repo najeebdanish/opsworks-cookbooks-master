@@ -24,6 +24,25 @@ template '/root/.s3cfg' do
 end
 
 package 's3cmd'
+package 'xinetd'
+package 'bind'
+
+cookbook_file "/root/amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm" do
+  source "amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm"
+end
+
+
+execute 'install amanda-backup-server' do
+  cwd '/root/'
+  command "rpm -i amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm"
+  action :run
+  #only_if "rpm -qa|grep s3cmd"
+end
+
+cookbook_file "/etc/amanda_IadBackup01.tar.gz" do
+  source "amanda_IadBackup01.tar.gz"
+end
+
 
 script "Get all 389 files" do
   interpreter "bash"
@@ -53,6 +72,10 @@ script "Get all 389 files" do
   tar -zxf dirsrv_etc.tar.gz
   sed -i "`grep -n -A 5 dna_init /etc/dirsrv/slapd-dcaldap01b/dse.ldif | grep nsslapd-pluginEnabled | awk -F"-" '{print $1}'`s/on/off/" /etc/dirsrv/slapd-dcaldap01b/dse.ldif
   /usr/lib64/dirsrv/slapd-dcaldap01b/ldif2db -i /root/dcaldap01.backup1.ldif -s "dc=evolv,dc=com"
+  cd /etc/
+  rm -rf amanda/
+  tar -zxf amanda_IadBackup01.tar.gz
+  /etc/init.d/xinetd restart
   EOH
 end
 

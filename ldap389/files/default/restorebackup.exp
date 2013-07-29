@@ -1,0 +1,5 @@
+#!/usr/bin/expect
+set timeout 10
+spawn "amrecover"
+expect "amrecover>" { send "sethost iadutil01.evolvsuite.local\r" }
+expect "amrecover>" { send "setdisk /opt\r" }

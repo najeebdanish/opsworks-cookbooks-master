@@ -16,7 +16,7 @@ script "Ldap client setup" do
   user "root"
   cwd "/etc/"
   code <<-EOH
-  sleep 30
+  sleep 600
   chmod 600 /root/opsworks_amandarestore
   chown root.root /root/opsworks_amandarestore
   cat /etc/ssh/sshd_config | grep PasswordAuthentication | sed -i "s/PasswordAuthentication/#PasswordAuthentication/g" /etc/ssh/sshd_config
@@ -35,6 +35,8 @@ script "Ldap client setup" do
   useradd -g 300 -u 300 -s /bin/bash -m -d /opt/evolv evolv
   echo "iadbackup01.evolvsuite.local amandabackup amdump" >> /var/lib/amanda/.amandahosts
   chown amandabackup.disk /etc/amanda/amanda-client.conf
+  ipadd=`ifconfig eth0 | grep "inet addr" | awk -F":" '{print $2}' | awk -F" " '{print $1}'`
+  ssh -i /root/opsworks_amandarestore root@ldapserver1 "echo \"${ipadd} root amindexd amidxtaped\" >> /var/lib/amanda/.amandahosts"
   EOH
 end
 

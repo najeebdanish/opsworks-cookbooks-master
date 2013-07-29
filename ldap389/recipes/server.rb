@@ -2,6 +2,8 @@ cookbook_file "/root/amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm" do
   source "amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm"
 end
 
+package 'xinetd'
+
 execute 'install amanda-backup-server' do
   cwd '/root/'
   command "rpm -i amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm"
@@ -44,7 +46,6 @@ template '/root/.s3cfg' do
 end
 
 package 's3cmd'
-package 'xinetd'
 package 'bind'
 
 cookbook_file "/etc/named.conf" do

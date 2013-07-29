@@ -1,6 +1,6 @@
 package 'pam_ldap'
 package 'nss-pam-ldapd'
-
+package 'amanda-client'
 
 script "Ldap client setup" do
   interpreter "bash"

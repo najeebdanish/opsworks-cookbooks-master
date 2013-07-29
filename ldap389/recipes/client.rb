@@ -18,6 +18,8 @@ script "Ldap client setup" do
   echo "%sysadmins        ALL=(ALL)       ALL" >> /etc/sudoers
   echo "%Install       ALL=(ALL)       ALL" >> /etc/sudoers
   echo "nameserver 10.96.189.128" >> /etc/resolv.conf
+  groupadd -g 300 evolv
+  useradd -g 300 -u 300 -s /bin/bash -m -d /opt/evolv evolv
   EOH
 end
 

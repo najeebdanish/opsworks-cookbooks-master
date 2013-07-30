@@ -1,34 +1,41 @@
-############################################################################
-## This cookbook will install and setup 389 Directory server, DNS server,
-## and Amanda Backup Server for DR automation
-############################################################################
-
-
-# Install xinetd package needed for amanda-backup_server rpm installation
-package 'xinetd'
-
 cookbook_file "/root/amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm" do
   source "amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm"
 end
+
+package 'xinetd'
 
 execute 'install amanda-backup-server' do
   cwd '/root/'
   command "rpm -i amanda-backup_server-3.3.1-1.rhel6.x86_64.rpm"
   action :run
+  #only_if "rpm -qa|grep s3cmd"
 end
 
 cookbook_file "/root/opsworks_amandarestore.pub" do
   source "opsworks_amandarestore.pub"
 end
 
-# Get the Amanda Server configuration files
 cookbook_file "/etc/amanda_IadBackup01.tar.gz" do
   source "amanda_IadBackup01.tar.gz"
 end
 
 
-# Install s3cmd utility
-package 's3cmd'
+package '389-ds'
+
+remote_file "/root/s3cmd-1.0.0-4.1.x86_64.rpm" do
+  source "s3cmd-1.0.0-4.1.x86_64.rpm"
+end
+
+cookbook_file "/root/389InstallFile.inf" do
+  source "389InstallFile.inf"
+end
+
+execute 'install s3cmd rpm' do
+  cwd '/root/'
+  command "rpm -i s3cmd-1.0.0-4.1.x86_64.rpm"
+  action :run
+  only_if "rpm -qa|grep s3cmd"
+end
 
 template '/root/.s3cfg' do
   source 's3cfg.erb'
@@ -38,8 +45,7 @@ template '/root/.s3cfg' do
   mode 0600
 end
 
-
-# Install bind DNS server
+package 's3cmd'
 package 'bind'
 
 cookbook_file "/etc/named.conf" do
@@ -51,15 +57,8 @@ cookbook_file "/etc/bind_dcans01_29JUL13.tar.gz" do
 end
 
 
-# Install 389 Directory Server
-package '389-ds'
 
-cookbook_file "/root/389InstallFile.inf" do
-  source "389InstallFile.inf"
-end
-
-
-script "Get all needed files and install 389, bind, and Amanda" do
+script "Get all 389 files" do
   interpreter "bash"
   user "root"
   cwd "/etc/"
@@ -68,12 +67,25 @@ script "Get all needed files and install 389, bind, and Amanda" do
   chmod 640 /etc/named.conf
   tar -zxf bind_dcans01_29JUL13.tar.gz
   /etc/init.d/named restart
+  s3cmd get s3://opsworks-test01/dirsrv_etc.tar.gz
+#  tar -zxf dirsrv_etc.tar.gz
+  cd /usr/lib64
+  s3cmd get s3://opsworks-test01/dirsrv_usrlib64.tar.gz
+#  tar -zxf dirsrv_usrlib64.tar.gz
+  cd /var/lib/dirsrv
+  s3cmd get s3://opsworks-test01/slapd-dcaldap01b_varlibdirsrv.tar.gz
+#  tar -zxf slapd-dcaldap01b_varlibdirsrv.tar.gz
+  cd /var/lock/dirsrv
+  s3cmd get s3://opsworks-test01/slapd-dcaldap01b_varlockdirsrv.tar.gz
+#  tar -zxf slapd-dcaldap01b_varlockdirsrv.tar.gz
+  cd /var/log/dirsrv
+  s3cmd get s3://opsworks-test01/slapd-dcaldap01b_varlogdirsrv.tar.gz
+#  tar -zxf slapd-dcaldap01b_varlogdirsrv.tar.gz
   cd /root/
   s3cmd get s3://opsworks-test01/dcaldap01.backup1.ldif
   /usr/sbin/setup-ds-admin.pl -s -f 389InstallFile.inf
   /etc/init.d/dirsrv stop
   cd /etc/
-  s3cmd get s3://opsworks-test01/dirsrv_etc.tar.gz
   rm -rf dirsrv
   tar -zxf dirsrv_etc.tar.gz
   sed -i "`grep -n -A 5 dna_init /etc/dirsrv/slapd-dcaldap01b/dse.ldif | grep nsslapd-pluginEnabled | awk -F"-" '{print $1}'`s/on/off/" /etc/dirsrv/slapd-dcaldap01b/dse.ldif

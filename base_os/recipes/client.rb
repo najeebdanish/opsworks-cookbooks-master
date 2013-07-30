@@ -38,6 +38,7 @@ script "Ldap client setup" do
   echo "%Install       ALL=(ALL)       ALL" >> /etc/sudoers
   groupadd -g 300 evolv
   useradd -g 300 -u 300 -s /bin/bash -m -d /opt/evolv evolv
+  echo "23.23.192.84   iadbackup01.evolvsuite.local" >> /etc/hosts
   echo "23.23.192.84 amandabackup amdump" >> /var/lib/amanda/.amandahosts
   chown amandabackup.disk /etc/amanda/amanda-client.conf
   ipadd=`ifconfig eth0 | grep "inet addr" | awk -F":" '{print $2}' | awk -F" " '{print $1}'`

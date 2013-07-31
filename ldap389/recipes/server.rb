@@ -69,6 +69,7 @@ script "Get all needed files and install 389, bind, and Amanda" do
   tar -zxf bind_dcans01_29JUL13.tar.gz
   /etc/init.d/named restart
   cd /root/
+  rm -f /root/ldapserver_ready.txt
   s3cmd get s3://opsworks-test01/dcaldap01.backup1.ldif
   /usr/sbin/setup-ds-admin.pl -s -f 389InstallFile.inf
   /etc/init.d/dirsrv stop
@@ -93,6 +94,7 @@ script "Get all needed files and install 389, bind, and Amanda" do
   sed -i "s/$bindserial/$bindserialnew/" /etc/bind/zones/evolvsuite.local
   rndc reload
   echo "nameserver $ipadd" > /etc/resolv.conf
+  echo "ok" > /root/ldapserver_ready.txt
   EOH
 end
 

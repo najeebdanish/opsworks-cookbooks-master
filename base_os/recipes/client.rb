@@ -22,7 +22,6 @@ script "Ldap client setup" do
   user "root"
   cwd "/etc/"
   code <<-EOH
-  sleep 600
   chmod 600 /root/opsworks_amandarestore
   chown root.root /root/opsworks_amandarestore
   cat /etc/ssh/sshd_config | grep PasswordAuthentication | sed -i "s/PasswordAuthentication/#PasswordAuthentication/g" /etc/ssh/sshd_config
@@ -33,6 +32,11 @@ script "Ldap client setup" do
   echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
   /etc/init.d/sshd restart
   /etc/init.d/nslcd restart
+  count=0
+  if [[ `ssh -o StrictHostKeyChecking=no -i opsworks_amandarestore root@23.23.192.84 "ifconfig eth0" | grep "inet addr" | awk -F":" '{print $2}' | awk -F" " '{print $1}'` != "ok" ]] && [[ $count -lt 10 ]] ; then
+     sleep 300
+	 count=`expr $count + 1`
+  fi
   ldapipadd=`ssh -o StrictHostKeyChecking=no -i opsworks_amandarestore root@23.23.192.84 "ifconfig eth0" | grep "inet addr" | awk -F":" '{print $2}' | awk -F" " '{print $1}'`
   echo "nameserver $ldapipadd" > /etc/resolv.conf
   authconfig --enableldap --enableldapauth --ldapserver='ldap://iadbackup01.evolvsuite.local/' --ldapbasedn='dc=evolv,dc=com' --enablelocauthorize --update

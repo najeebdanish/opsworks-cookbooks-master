@@ -27,22 +27,24 @@ script "Ldap client setup" do
   chown root.root /root/opsworks_amandarestore
   cat /etc/ssh/sshd_config | grep PasswordAuthentication | sed -i "s/PasswordAuthentication/#PasswordAuthentication/g" /etc/ssh/sshd_config
   cat /etc/ssh/sshd_config | grep PasswordAuthentication | sed -i "s/UseDNS/#UseDNS/g" /etc/ssh/sshd_config
+  cat /etc/ssh/sshd_config | grep PasswordAuthentication | sed -i "s/PermitRootLogin/#PermitRootLogin/g" /etc/ssh/sshd_config
   echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
   echo "UseDNS no" >> /etc/ssh/sshd_config
+  echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
   /etc/init.d/sshd restart
   /etc/init.d/nslcd restart
-  echo "nameserver 23.23.192.84" >> /etc/resolv.conf
-  authconfig --enableldap --enableldapauth --ldapserver='ldap://23.23.192.84/' --ldapbasedn='dc=evolv,dc=com' --enablelocauthorize --update
+  ldapipadd=`ssh -o StrictHostKeyChecking=no -i opsworks_amandarestore root@23.23.192.84 "ifconfig eth0" | grep "inet addr" | awk -F":" '{print $2}' | awk -F" " '{print $1}'`
+  echo "nameserver $ldapipadd" > /etc/resolv.conf
+  authconfig --enableldap --enableldapauth --ldapserver='ldap://iadbackup01.evolvsuite.local/' --ldapbasedn='dc=evolv,dc=com' --enablelocauthorize --update
   echo "%evolvadmins ALL=(ALL) /bin/su - evolv" >> /etc/sudoers
   echo "%sysadmins        ALL=(ALL)       ALL" >> /etc/sudoers
   echo "%Install       ALL=(ALL)       ALL" >> /etc/sudoers
   groupadd -g 300 evolv
   useradd -g 300 -u 300 -s /bin/bash -m -d /opt/evolv evolv
-  echo "23.23.192.84   iadbackup01.evolvsuite.local" >> /etc/hosts
-  echo "23.23.192.84 amandabackup amdump" >> /var/lib/amanda/.amandahosts
+  echo "$ldapipadd amandabackup amdump" >> /var/lib/amanda/.amandahosts
   chown amandabackup.disk /etc/amanda/amanda-client.conf
   ipadd=`ifconfig eth0 | grep "inet addr" | awk -F":" '{print $2}' | awk -F" " '{print $1}'`
-  ssh -i /root/opsworks_amandarestore root@23.23.192.84 "echo \"${ipadd} root amindexd amidxtaped\" >> /var/lib/amanda/.amandahosts"
+  ssh -o StrictHostKeyChecking=no -i /root/opsworks_amandarestore root@23.23.192.84 "echo \"${ipadd} root amindexd amidxtaped\" >> /var/lib/amanda/.amandahosts"
   EOH
 end
 

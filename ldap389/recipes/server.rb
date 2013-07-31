@@ -92,6 +92,7 @@ script "Get all needed files and install 389, bind, and Amanda" do
   bindserialnew=`expr $bindserial + 1`
   sed -i "s/$bindserial/$bindserialnew/" /etc/bind/zones/evolvsuite.local
   rndc reload
+  echo "nameserver $ipadd" > /etc/resolv.conf
   EOH
 end
 
